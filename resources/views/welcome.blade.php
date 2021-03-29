@@ -42,7 +42,15 @@
                         <th>Tanggal</th>
                         <th>Nomor Urut</th>
                     </tr>
-         
+                    <tr>
+                        <th rowspan="1" colspan="1">
+                            <input type="text" size="15" id="search_date" placeholder="Search Tanggal">
+                        </th> 
+                        <th rowspan="1" colspan="1">
+                            <input type="text" size="15" id="search_serialNumber" placeholder="Search Nomor urut">
+                        </th> 
+                    </tr>
+                    
                 </thead>
                 <tbody>
                     @foreach ($data as $datas)
@@ -52,12 +60,7 @@
                     </tr>
                     @endforeach
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Nomor Urut</th>
-                    </tr>
-                </tfoot>
+
             </table>
         </div>
     </br>
@@ -100,45 +103,73 @@
             });
 
 $('body').on('click', '#btn-save', function (event) {
-    event.preventDefault()
+event.preventDefault()
 
-    var date = $("#datepicker").val();
+var date = $("#datepicker").val();
+
+$.ajax({
+    url: "{{ route('date.post') }}",
+    type: "POST",
+    data: {
+        date: date,
+    },
+    dataType: 'json',
+
+    success: function (data) {
     
-    $.ajax({
-        url: "{{ route('date.post') }}",
-        type: "POST",
-        data: {
-            date: date,
-        },
-        dataType: 'json',
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Data Tersimpan',
+        showConfirmButton: true,
+        timer: 2000
+    })
+    setTimeout(function () {
+    location.reload(true);
+    }, 1600);
+    $('#modalFormData').trigger("reset");
+    
+    },
+    error: function (data) {
+        console.log('Error:', data);
+        $('#btn-save').html('Tersimpan');
+    }
+});
+});
 
-        success: function (data) {
-        
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Data Tersimpan',
-            showConfirmButton: false,
-            timer: 1500
-        })
-        setTimeout(function () {
-        location.reload(true);
-      }, 1600);
-        $('#modalFormData').trigger("reset");
-        
-        },
-        error: function (data) {
-            console.log('Error:', data);
-            $('#btn-save').html('Tersimpan');
-        }
+$("#datepicker").datepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'dd MM yy',
+});
+
+$("#search_date").keyup(function () {
+    var value = this.value.toLowerCase().trim();
+
+    $("table tr").each(function (index) {
+        if (!index) return;
+        $(this).find("td").each(function () {
+            var id = $(this).text().toLowerCase().trim();
+            var not_found = (id.indexOf(value) == -1);
+            $(this).closest('tr').toggle(!not_found);
+            return not_found;
+        });
     });
 });
 
-            $("#datepicker").datepicker({
-                changeMonth: true,
-                changeYear: true,
-                dateFormat: 'dd MM yy',
-            });
+$("#search_serialNumber").keyup(function () {
+    var value = this.value.toLowerCase().trim();
+
+    $("table tr").each(function (index) {
+        if (!index) return;
+        $(this).find("td").each(function () {
+            var id = $(this).text().toLowerCase().trim();
+            var not_found = (id.indexOf(value) == -1);
+            $(this).closest('tr').toggle(!not_found);
+            return not_found;
+        });
+    });
+});
 
         </script>
     </body>
